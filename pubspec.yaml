@@ -37,6 +37,12 @@ dependencies:
   path_provider: ^2.0.11
   file_picker: ^4.5.1
   crop_image: ^1.0.2
+  image_picker: ^0.8.5+3
+  image_cropper: ^3.0.0
+  crop: ^0.5.2
+  image_gallery_saver: ^1.7.1
+  file_picker_desktop: ^1.1.1
+  image: ^3.0.1
 
 dev_dependencies:
   flutter_test:
