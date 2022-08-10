@@ -44,7 +44,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   File? imagevalue;
   double? height;
   double? width;
@@ -52,10 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
     aspectRatio: 1.5,
     defaultCrop: const Rect.fromLTRB(0.2, 0.2, 0.5, 0.5),
   );
-
-  XFile? _pickedFile;
-  CroppedFile? _croppedFile;
   Rect? rect;
+  List<File> filesItemCrop = [];
 
   @override
   void dispose() {
@@ -97,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Align(
                 alignment: Alignment.topCenter,
                 child: Container(
-                    child: imagevalue == null
+                    child: filesItemCrop.isEmpty
                         ? Container() :
                     //     : Container(
                     //   child: Image.file(
@@ -109,7 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     // ))
                     Container(
                       width: 800,
-                      height: 600,
+                      // height: 600,
+                      color: Colors.yellow,
                       alignment: Alignment.center,
                       // decoration: BoxDecoration(
                       //   image: DecorationImage(
@@ -117,29 +115,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       //     image: NetworkImage("https://picsum.photos/250?image=9"),
                       //   ),
                       // ),
-                      child: CropImage(
-                              image: Image.file(
-                                imagevalue!,
-                                width: 800,
-                                height: 600,
-                                fit: BoxFit.fill,
-                              ),
-                              controller: controller,
-                              // alwaysShowThirdLines: true,
-                              onCrop: (Rect r) async {
-                                setState(() {
-                                  // rect = r;
-                                  // controller.aspectRatio = 1.5;
-                                  // controller.crop = r;
-                                  // Rect finalCropRelative = controller.crop;
-
-                                  Rect finalCropPixels = controller.cropSize;
-                                  rect = r;
-                                  print("ImageCheck1 : $finalCropPixels  ::: ${rect?.bottomRight.direction}");
-                                  print("ImageCheck12 : left : ${r.left} : right: ${r.right}: top:${r.top} : bottom :${r.bottom}");
-                                });
-                              },
-                            ),
+                      child:ListView.builder(
+                        itemCount: filesItemCrop.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (context, i) {
+                          return itemCrop(filesItemCrop[i]);
+                        },
+                      )
                     )),
               ),
               InkWell(
@@ -166,67 +150,37 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               InkWell(
                 onTap: () async {
-                  //Todo crop
-                  // final xpath = imagevalue!.path;
-                  // final bytes = await File(xpath).readAsBytes();
-                  // final img.Image? newImage = img.decodeImage(bytes);
-                  //
-                  // img.Image crop = img.copyCrop(newImage!, 300, 300, 300, 300);
-                  // final jpg = img.encodeJpg(crop);
-                  // File cropSaveFile = File(xpath);
-                  // // cropSaveFile.writeAsBytes(jpg);
-                  // final String? selectedFileName = await saveFile(
-                  //           defaultFileName: 'default-file1.png',
-                  //         );
-                  // await File(selectedFileName ?? '').writeAsBytes(jpg);
-                },
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.all(Radius.circular(4.0)), // Set rounded corner radius
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.only(top: 20, left: 20),
-                    child: const Text(
-                      "Crop",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () async {
                   // _save();
-                  final xpath = imagevalue!.path;
-                  final bytes = await File(xpath).readAsBytes();
-                  final img.Image? newImage = img.decodeImage(bytes);
+                  filesItemCrop.forEach((element) async {
+                    final xpath = element!.path;
+                    final bytes = await File(xpath).readAsBytes();
+                    final img.Image? newImage = img.decodeImage(bytes);
 
 
-                  int w = newImage!.width;
-                  int h = newImage!.height;
-                  double wTP = (rect!.right - (rect!.left ?? 0));
-                  double hTP = (rect!.bottom - (rect!.top ?? 0));
-                  img.Image crop = img.copyCrop(
-                      newImage!,
-                      (rect!.left * w).toInt(),
-                      (rect!.top * h).toInt(),
-                      (wTP*w).toInt(),
-                      (hTP*h).toInt());
+                    int w = newImage!.width;
+                    int h = newImage.height;
+                    double wTP = (rect!.right - (rect!.left ?? 0));
+                    double hTP = (rect!.bottom - (rect!.top ?? 0));
+                    img.Image crop = img.copyCrop(
+                        newImage,
+                        (rect!.left * w).toInt(),
+                        (rect!.top * h).toInt(),
+                        (wTP*w).toInt(),
+                        (hTP*h).toInt());
 
-                  // img.Image crop = img.copyCrop(
-                  //     newImage!,
-                  //     (newImage.width/2).toInt() - ((newImage.width*2/3).toInt()/2).toInt(),
-                  //     (newImage.height/2).toInt() - ((newImage.height*2/3).toInt()/2).toInt(),
-                  //     (newImage.width*2/3).toInt(),
-                  //     (newImage.height*2/3).toInt());
-                  final jpg = img.encodeJpg(crop);
-                  File cropSaveFile = File(xpath);
-                  final String? selectedFileName = await saveFile(
-                    defaultFileName: 'default-file1.png',
-                  );
-                  await File(selectedFileName ?? '').writeAsBytes(jpg);
+                    // img.Image crop = img.copyCrop(
+                    //     newImage!,
+                    //     (newImage.width/2).toInt() - ((newImage.width*2/3).toInt()/2).toInt(),
+                    //     (newImage.height/2).toInt() - ((newImage.height*2/3).toInt()/2).toInt(),
+                    //     (newImage.width*2/3).toInt(),
+                    //     (newImage.height*2/3).toInt());
+                    final jpg = img.encodeJpg(crop);
+                    File cropSaveFile = File(xpath);
+                    final String? selectedFileName = await saveFile(
+                      defaultFileName: DateTime.now().millisecondsSinceEpoch.toString(),
+                    );
+                    await File(selectedFileName ?? '').writeAsBytes(jpg);
+                  });
                 },
                 child: Align(
                   alignment: Alignment.center,
@@ -249,6 +203,31 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
+  Widget itemCrop(File file) {
+    return CropImage(
+      image: Image.file(
+        file!,
+        width: 800,
+        height: 600,
+        fit: BoxFit.fill,
+      ),
+      controller: controller,
+      // alwaysShowThirdLines: true,
+      onCrop: (Rect r) async {
+        setState(() {
+          // rect = r;
+          // controller.aspectRatio = 1.5;
+          // controller.crop = r;
+          // Rect finalCropRelative = controller.crop;
+
+          Rect finalCropPixels = controller.cropSize;
+          rect = r;
+          print("ImageCheck1 : $finalCropPixels  ::: ${rect?.bottomRight.direction}");
+          print("ImageCheck12 : left : ${r.left} : right: ${r.right}: top:${r.top} : bottom :${r.bottom}");
+        });
+      },
+    );
+  }
   void chooseFile() async {
     // FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles(
     //     allowMultiple: true,
@@ -264,19 +243,20 @@ class _MyHomePageState extends State<MyHomePage> {
     //   setState(() {
     //     imagevalue = file1;
     //   });
-    //   // for(PlatformFile file in filePickerResult.files){
-    //
-    //   // }
+
     // }
 
     try {
       var result = await pickFiles(
-        allowMultiple: false,
+        allowMultiple: true,
       );
+      
       if (result != null) {
-        File? file = File(result.files.single.path ?? '');
+        // File? file = File(result.files.single.path ?? '');
+
         setState(() {
-          imagevalue = file;
+          // imagevalue = file;
+          filesItemCrop = result.paths.map((path) => File(path!)).toList();
         });
       } else {
         // User canceled the picker
