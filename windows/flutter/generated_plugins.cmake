@@ -3,6 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  desktop_drop
+  url_launcher_windows
+  windows_single_instance
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
